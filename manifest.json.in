@@ -1,0 +1,17 @@
+{
+    "name": "@APP_ID@",
+    "description": "description of DND5eSpellBook",
+    "architecture": "@CLICK_ARCH@",
+    "title": "@APP_NAME@",
+    "hooks": {
+        "DND5eSpellBook": {
+            "apparmor": "DND5eSpellBook.apparmor",
+            "desktop":  "DND5eSpellBook.desktop"
+        }
+    },
+    "version": "0.1",
+    "maintainer": "Brandon Schaefer <brandontschaefer@gmail.com>",
+    "framework" : "ubuntu-sdk-15.04"
+}
+
+
