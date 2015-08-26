@@ -5,7 +5,7 @@ include_directories(
 set(
     DND5eSpellBookbackend_SRCS
     modules/DND5eSpellBook/backend.cpp
-    modules/DND5eSpellBook/mytype.cpp
+    modules/DND5eSpellBook/Spell.cpp
     modules/DND5eSpellBook/SpellBookModel.cpp
     modules/DND5eSpellBook/JSonSpellParser.cpp
     modules/DND5eSpellBook/Filter.cpp

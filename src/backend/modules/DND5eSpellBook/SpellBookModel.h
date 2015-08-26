@@ -19,6 +19,7 @@
 #ifndef SPELL_BOOK_MODEL_H
 #define SPELL_BOOK_MODEL_H
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -64,8 +65,16 @@ public:
   void AddClassFilter(ClassFilter const& filter);
   void RemoveClassFilter(ClassFilter const& filter);
 
+  void SortBySpellLevel(bool ascending);
+  void SortBySpellName(bool ascending);
+  void SortBySpellSchool(bool ascending);
+
 private:
+  std::vector<std::string> GetSpellClassFilters() const;
   bool PassesFilters(SpellBreed const& b) const;
+
+  void SortSpells(std::function<bool(SpellBreed const&, SpellBreed const&)> const& comp);
+
   std::vector<SpellBreed> spells_;
   Filter class_filter_;
 };

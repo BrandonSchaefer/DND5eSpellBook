@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-20 21:50-0700\n"
+"POT-Creation-Date: 2015-08-25 14:33-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,20 +20,4 @@ msgstr ""
 #: ../build/po/DND5eSpellBook.desktop.in.h:1
 #: /home/bschaefer/Documents/cpp/DND5eSpellBook/build/po/DND5eSpellBook.desktop.in.h:1
 msgid "DND5eSpellBook"
-msgstr ""
-
-#: ../src/qml/Main.qml:31
-msgid "DND Spell Book"
-msgstr ""
-
-#: ../src/qml/Main.qml:60
-msgid "Hello world.."
-msgstr ""
-
-#: ../src/qml/Main.qml:82
-msgid "Tap me! Please Yeah :::)"
-msgstr ""
-
-#: ../src/qml/Main.qml:85
-msgid "..from Cpp Backend"
 msgstr ""

@@ -3,7 +3,6 @@
 
 #include <QtQml/QQmlEngine>
 #include <QtQml/QQmlExtensionPlugin>
-
 /*
  ----8<-----
 

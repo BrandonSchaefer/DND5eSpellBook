@@ -37,7 +37,7 @@ namespace
   std::vector<std::string> const CLASSES = {"Bard", "Cleric", "Druid", "Paladin", "Sorcerer", "Warlock", "Wizard"};
 }
 
-std::string ReadInFile(std::string const& path)
+static std::string ReadInFile(std::string const& path)
 {
   std::string str;
   std::ifstream is(path.c_str(), std::ifstream::binary);
@@ -66,7 +66,8 @@ std::string ReadInFile(std::string const& path)
   return str;
 }
 
-void print_spell_breed(SpellBreed const& b)
+/*
+static void print_spell_breed(SpellBreed const& b)
 {
   std::cout << std::endl;
   std::cout << "Name: \t\t"        << b.name          << std::endl <<
@@ -82,8 +83,36 @@ void print_spell_breed(SpellBreed const& b)
                "School: \t"        << b.school        << std::endl <<
                "Class: \t\t"       << b.classes       << std::endl;
 }
+*/
 
-std::string ReplaceIfCantrip(std::string const& level)
+SpellBookModel::SpellBookModel()
+  : class_filter_(CLASSES.size())
+{
+  spells_ = ParseSpellBook(ReadInFile(JSON_PATH));
+
+  //std::sort(spells_.begin(), spells_.end(), SpellSchoolDescending);
+  SortBySpellName(true);
+  //SortBySpellLevel(true);
+  //SortBySpellSchool(true);
+
+  class_filter_.SetFilter(PALADIN);
+
+  //auto t = GetSpells();
+  //for (auto const& s : t)
+    //print_spell_breed(s);
+  //{
+    //break;
+    //print_spell_breed(s);
+    //std::cout << s.school << std::endl;
+  //}
+}
+
+void SpellBookModel::SortSpells(std::function<bool(SpellBreed const&, SpellBreed const&)> const& comp)
+{
+  std::sort(spells_.begin(), spells_.end(), comp);
+}
+
+static std::string ReplaceIfCantrip(std::string const& level)
 {
   if (level == CANTRIP)
     return ZERO_LEVEL;
@@ -91,85 +120,108 @@ std::string ReplaceIfCantrip(std::string const& level)
   return level;
 }
 
-bool SpellLevelDescending(SpellBreed const& a, SpellBreed const& b)
-{
-  std::string level_a = ReplaceIfCantrip(a.level);
-  std::string level_b = ReplaceIfCantrip(b.level);
-
-  return level_a.compare(level_b) > 0;
-}
-
-bool SpellLevelAscending(SpellBreed const& a, SpellBreed const& b)
-{
-  std::string level_a = ReplaceIfCantrip(a.level);
-  std::string level_b = ReplaceIfCantrip(b.level);
-
-  return level_a.compare(level_b) < 0;
-}
-
-bool SpellNameDescending(SpellBreed const& a, SpellBreed const& b)
+static bool SpellNameDescending(SpellBreed const& a, SpellBreed const& b)
 {
   return a.name.compare(b.name) > 0;
 }
 
-bool SpellNameAscending(SpellBreed const& a, SpellBreed const& b)
+static bool SpellNameAscending(SpellBreed const& a, SpellBreed const& b)
 {
   return a.name.compare(b.name) < 0;
 }
 
-bool SpellSchoolDescending(SpellBreed const& a, SpellBreed const& b)
+void SpellBookModel::SortBySpellName(bool ascending)
 {
+  if (ascending)
+    SortSpells(SpellNameAscending);
+  else
+    SortSpells(SpellNameDescending);
+}
+
+static bool SpellLevelDescending(SpellBreed const& a, SpellBreed const& b)
+{
+  std::string level_a = ReplaceIfCantrip(a.level);
+  std::string level_b = ReplaceIfCantrip(b.level);
+
+  // Sort by name if the level is the same
+  if (level_a == level_b)
+    return SpellNameDescending(a, b);
+
+  return level_a.compare(level_b) > 0;
+}
+
+static bool SpellLevelAscending(SpellBreed const& a, SpellBreed const& b)
+{
+  std::string level_a = ReplaceIfCantrip(a.level);
+  std::string level_b = ReplaceIfCantrip(b.level);
+
+  // Sort by name if the level is the same
+  if (level_a == level_b)
+    return SpellNameAscending(a, b);
+
+  return level_a.compare(level_b) < 0;
+}
+
+void SpellBookModel::SortBySpellLevel(bool ascending)
+{
+  if (ascending)
+    SortSpells(SpellLevelAscending);
+  else
+    SortSpells(SpellLevelDescending);
+}
+
+static bool SpellSchoolDescending(SpellBreed const& a, SpellBreed const& b)
+{
+  if (a.school == b.school)
+    return SpellLevelDescending(a, b);
+
   return a.school.compare(b.school) > 0;
 }
 
-bool SpellSchoolAscending(SpellBreed const& a, SpellBreed const& b)
+static bool SpellSchoolAscending(SpellBreed const& a, SpellBreed const& b)
 {
+  if (a.school == b.school)
+    return SpellLevelAscending(a, b);
+
   return a.school.compare(b.school) < 0;
 }
 
-SpellBookModel::SpellBookModel()
-  : class_filter_(CLASSES.size())
+void SpellBookModel::SortBySpellSchool(bool ascending)
 {
-  spells_ = ParseSpellBook(ReadInFile(JSON_PATH));
-
-  std::sort(spells_.begin(), spells_.end(), SpellSchoolDescending);
-
-  class_filter_.SetFilter(CLERIC);
-  class_filter_.SetFilter(WIZARD);
-
-  for (auto const& s : spells_)
-  {
-    std::cout << s.school << std::endl;
-  }
-  GetSpells();
-    //print_spell_breed(s);
+  if (ascending)
+    SortSpells(SpellSchoolAscending);
+  else
+    SortSpells(SpellSchoolDescending);
 }
 
-bool SpellBookModel::PassesFilters(SpellBreed const& b) const
+std::vector<std::string> SpellBookModel::GetSpellClassFilters() const
 {
-  for (unsigned int i = 0; i < CLASSES.size(); i++)
-  {
-    if (class_filter_.HasFilter(i) &&
-        b.classes.find(CLASSES[i]) != std::string::npos)
-    {
-      return true;
-    }
-  }
+  std::vector<std::string> class_string_filters;
 
-  return false;
+  for (unsigned int i = 0; i < CLASSES.size(); i++)
+    if (class_filter_.HasFilter(i))
+      class_string_filters.push_back(CLASSES[i]);
+
+  return class_string_filters;
 }
 
 std::vector<SpellBreed> SpellBookModel::GetSpells() const
 {
-  std::vector<SpellBreed> filtered_spells;
+  std::vector<SpellBreed> filtered_spells(spells_.size());
+  std::vector<std::string> class_string_filters = GetSpellClassFilters();
 
-  for (auto const& s : spells_)
-  {
-    if (PassesFilters(s))
-      filtered_spells.push_back(s);
-  }
+  auto end_it = std::copy_if(spells_.begin(), spells_.end(),
+                             filtered_spells.begin(), [class_string_filters] (SpellBreed const& b) {
+      for (auto const& klass : class_string_filters)
+       if (b.classes.find(klass) != std::string::npos)
+         return true;
 
-  std::cout << "Size: " << filtered_spells.size() << std::endl;
+      return class_string_filters.empty();
+  });
+
+  filtered_spells.resize(std::distance(filtered_spells.begin(), end_it));
+
+  std::cout << spells_.size() << " " << filtered_spells.size() << std::endl;
 
   return filtered_spells;
 }

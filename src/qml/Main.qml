@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Ubuntu.Components 1.1
 import DND5eSpellBook 1.0
+import QtQuick.Layouts 1.1
 
 /*!
     \brief MainView with Tabs element.
@@ -9,137 +10,400 @@ import DND5eSpellBook 1.0
 */
 
 MainView {
-    id: main
+  id: main
 
-    // Note! applicationName needs to match the "name" field of the click manifest
-    applicationName: "dnd5espellbook.brandontschaefer"
+  // Note! applicationName needs to match the "name" field of the click manifest
+  applicationName: "dnd5espellbook.brandontschaefer"
 
-    /*
-     This property enables the application to change orientation
-     when the device is rotated. The default is false.
-    */
-    //automaticOrientation: true
+  /*
+   This property enables the application to change orientation
+   when the device is rotated. The default is false.
+  */
+  //automaticOrientation: true
 
-    // Removes the old toolbar and enables new features of the new header.
-    useDeprecatedToolbar: false
+  // Removes the old toolbar and enables new features of the new header.
+  useDeprecatedToolbar: false
 
-    width: units.gu(100)
-    height: units.gu(76)
+  width:  units.gu(100)
+  height: units.gu(76)
 
-    property bool menu_shown: false
-    Page {
-      title: i18n.tr("DND Spell Book")
+  property bool menu_shown: false
+  property bool card_shown: false
+
+  Rectangle {
+    id: menu_view
+    anchors.fill: parent
+    color: "#303030"
+
+    MouseArea {
+      id: menu_mouse
+      anchors.fill: parent
+      onClicked: Qt.quit()
+    }
+  }
+
+  Rectangle {
+    id: spell_view
+    anchors.fill: parent
+    anchors.left: parent.right
+    color: "#999999"
+
+    transform: Translate {
+      id: spell_view_move
+      x: main_view.width
+      Behavior on x { NumberAnimation { duration: 500; easing.type: Easing.InOutQuart } }
+    }
+
+    MouseArea {
+      anchors.fill: parent
+    }
+
+    Rectangle {
+      id: spell_menu_bar
+      anchors.top: parent.top
+      width:  parent.width
+      height: units.gu(7.5)
+      color: "grey"
+
+      // Just need to eat menu bar events
+      MouseArea {
+        anchors.fill: parent
+      }
 
       Rectangle {
-        id: menu_view
-        anchors.fill: parent
-        color: "#303030"
+        id: spell_menu_button
+        anchors {
+          left: parent.left
+          verticalCenter: parent.verticalCenter
+          margins: units.gu(2)
+        }
+
+        width:  units.gu(5)
+        height: units.gu(5)
+        color: "#CCCCCC"
+
+        Text {
+          anchors.centerIn: parent
+          font.pixelSize: units.gu(5)
+          text: "⬅"
+        }
 
         MouseArea {
-          id: menu_mouse
           anchors.fill: parent
-          onClicked: Qt.quit()
+          onClicked: main.moveCardView()
+        }
+      }
+
+      Text {
+        x: parent.width * 0.25
+        anchors.centerIn: parent
+        font.pixelSize: units.gu(5)
+        font.bold: true
+        text: spellBookModel[spell_content.currentIndex].name
+      }
+
+      BorderImage {
+        id: spell_menu_shadow
+        anchors.right:  parent.right
+        anchors.left:   parent.left
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: -units.gu(0.5)
+        z: -1
+        source: "graphics/shadow.png"
+        border {
+          left:   units.gu(1)
+          right:  units.gu(1)
+          top:    units.gu(1)
+          bottom: units.gu(1)
+        }
+      }
+    }
+
+    Rectangle {
+      id: spell_card
+
+      anchors {
+        top:    spell_menu_bar.bottom
+        bottom: parent.bottom
+        left:   parent.left
+        right:  parent.right
+        leftMargin:   units.gu(2)
+        rightMargin:  units.gu(2)
+        bottomMargin: units.gu(1)
+        topMargin: units.gu(0.5)
+      }
+
+      Flickable {
+        anchors.fill: parent
+        contentWidth:  parent.width
+        contentHeight: spell_card_grid.height + spell_desc_text.height
+        flickableDirection: Flickable.VerticalFlick
+        clip: true
+
+        GridLayout {
+          id: spell_card_grid
+          columns: 2
+          anchors.top: parent.top
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.margins: units.gu(2)
+          rowSpacing: units.gu(2)
+          columnSpacing: units.gu(2)
+          Text {
+            text: "<i>" + spellBookModel[spell_content.currentIndex].level + " " +
+                          spellBookModel[spell_content.currentIndex].school + "</i>"
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
+          }
+
+          Rectangle {
+            height: units.gu(0.1)
+            color: "black"
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
+          }
+
+          Text {
+            text: "<b>Casting Time:</b> " + spellBookModel[spell_content.currentIndex].casting_time
+            Layout.fillWidth: true
+          }
+          Text {
+            text: "<b>Range:</b> " + spellBookModel[spell_content.currentIndex].range
+            Layout.fillWidth: true
+          }
+
+          Text {
+            text: "<b>Duration:</b> " + spellBookModel[spell_content.currentIndex].duration
+            Layout.fillWidth: true
+          }
+          Text {
+            text: "<b>Components:</b> " + spellBookModel[spell_content.currentIndex].components
+            Layout.fillWidth: true
+          }
+
+          Text {
+            text: "<b>Concentration:</b> " + spellBookModel[spell_content.currentIndex].concentration
+            Layout.fillWidth: true
+          }
+          Text {
+            text: "<b>Ritual:</b> " + spellBookModel[spell_content.currentIndex].ritual
+            Layout.fillWidth: true
+          }
+
+          Text {
+            text: "<b>Page:</b> " + spellBookModel[spell_content.currentIndex].page
+            Layout.fillWidth: true
+          }
+          Text {
+            text: "<b>Classes:</b> " + spellBookModel[spell_content.currentIndex].classes
+            Layout.fillWidth: true
+          }
+          Rectangle {
+            height: units.gu(0.1)
+            color: "black"
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
+          }
+        }
+        Text {
+          id: spell_desc_text
+          anchors.top: spell_card_grid.bottom
+          anchors.left:  parent.left
+          anchors.right: parent.right
+          anchors.margins: units.gu(2)
+          font.pixelSize:  units.gu(2)
+          wrapMode: Text.WordWrap
+          text: spellBookModel[spell_content.currentIndex].desc
+        }
+      }
+    }
+  }
+
+  Rectangle {
+    id: main_view
+    anchors.fill: parent
+    color: "#CCCCCC"
+
+    transform: Translate {
+      id: main_view_move
+      x: 0
+      Behavior on x { NumberAnimation { duration: 500; easing.type: Easing.InOutQuart } }
+    }
+
+    BorderImage {
+      id: filter_shadow
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.margins: -units.gu(1.5)
+      visible: main.menu_shown
+      z: -1
+      source: "graphics/shadow.png"
+      border {
+        left:   units.gu(1.5)
+        right:  units.gu(1.5)
+        top:    units.gu(1.5)
+        bottom: units.gu(1.5)
+      }
+    }
+
+    Rectangle {
+      id: menu_bar
+      anchors.top: parent.top
+      width: parent.width
+      height: units.gu(7.5)
+      color: "grey"
+
+      // Just need to eat menu bar events
+      MouseArea {
+        anchors.fill: parent
+      }
+
+      BorderImage {
+        id: menu_shadow
+        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: -units.gu(0.5)
+        z: -1
+        source: "graphics/shadow.png"
+        border {
+          left:   units.gu(1)
+          right:  units.gu(1)
+          top:    units.gu(1)
+          bottom: units.gu(1)
         }
       }
 
       Rectangle {
-        id: main_view
-        anchors.fill: parent
+        id: menu_button
+        anchors {
+          left: parent.left
+          verticalCenter: parent.verticalCenter
+          margins: units.gu(2)
+        }
+
+        width:  units.gu(5)
+        height: units.gu(5)
         color: "#CCCCCC"
 
-        transform: Translate {
-          id: main_view_move
-          x: 0
-          Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.InOutQuart } }
+        Text {
+          anchors.centerIn: parent
+          font.pixelSize: units.gu(5)
+          text: "☰"
         }
-
-        MyType {
-            id: myType
-
-            Component.onCompleted: {
-                myType.helloWorld = i18n.tr("Hello world..")
-            }
-        }
-
-        Column {
-            spacing: units.gu(1)
-            anchors {
-                margins: units.gu(2)
-                fill: parent
-            }
-
-            Label {
-                id: label
-                objectName: "label"
-
-                text: myType.helloWorld
-            }
-
-            Button {
-                objectName: "button"
-                width: parent.width
-
-                text: i18n.tr("Tap me! Please Yeah :::)")
-
-                onClicked: {
-                    myType.helloWorld = i18n.tr("..from Cpp Backend")
-                    main.moveMainView()
-                }
-            }
-        }
-        /*
 
         MouseArea {
-          id: main_mouse
           anchors.fill: parent
           onClicked: main.moveMainView()
         }
-        */
+      }
+
+      Text {
+        x: parent.width * 0.25
+        anchors.centerIn: parent
+        font.pixelSize: units.gu(5)
+        font.bold: true
+        text: "Spell Book"
       }
     }
 
-    function moveMainView()
-    {
-      main_view_move.x = main.menu_shown ? 0 : main.width * 0.25
-      main.menu_shown = !main.menu_shown
+    ListView {
+      id: spell_content
+      anchors {
+        top:    menu_bar.bottom
+        bottom: parent.bottom
+        left:   parent.left
+        right:  parent.right
+        leftMargin:   units.gu(2)
+        rightMargin:  units.gu(2)
+        bottomMargin: units.gu(1)
+        topMargin:    units.gu(0.5)
+      }
+
+      spacing: units.gu(0.25)
+      clip: true
+      model: spellBookModel
+      delegate: Rectangle {
+        width: parent.width
+        height: 40
+        border.width: units.gu(0.5)
+        border.color: "black"
+        Row {
+          anchors.fill: parent
+          anchors.margins: units.gu(1)
+
+          Rectangle {
+            width:  parent.width * 0.25
+            height: parent.height
+            color: "transparent"
+            Text {
+              anchors.left: parent.left
+              anchors.verticalCenter: parent.verticalCenter
+              font.bold: true
+              text: model.modelData.level
+            }
+          }
+
+          Rectangle {
+            width:  parent.width * 0.25
+            height: parent.height
+            color: "transparent"
+            Text {
+              anchors.centerIn: parent
+              font.bold: true
+              text: model.modelData.name
+            }
+          }
+
+          Rectangle {
+            width:  parent.width * 0.25
+            height: parent.height
+            color: "transparent"
+            Text {
+              anchors.centerIn: parent
+              font.bold: true
+              text: model.modelData.school
+            }
+          }
+
+          Rectangle {
+            width:  parent.width * 0.25
+            height: parent.height
+            color: "transparent"
+            Text {
+              anchors.right: parent.right
+              anchors.verticalCenter: parent.verticalCenter
+              font.bold: true
+              text: model.modelData.page
+            }
+          }
+        }
+
+        // TODO Show a card with info on it
+        MouseArea {
+          anchors.fill: parent
+          onClicked: {
+            spell_content.currentIndex = index
+            main.moveCardView()
+          }
+        }
+      }
     }
+  }
+
+  function moveMainView()
+  {
+    main_view_move.x  = main.menu_shown ? 0 : main.width * 0.25
+    spell_view_move.x = main.menu_shown ? main.width : main.width + main.width * 0.25
+    main.menu_shown = !main.menu_shown
+  }
+
+  function moveCardView()
+  {
+    main_view_move.x  = main.card_shown ? 0 : -main.width
+    spell_view_move.x = main.card_shown ? main.width : 0
+    main.menu_shown = false
+    main.card_shown = !main.card_shown
+  }
 }
-  /*
-      Page {
-          title: i18n.tr("DND5eSpellBook")
-
-          MyType {
-              id: myType
-
-              Component.onCompleted: {
-                  myType.helloWorld = i18n.tr("Hello world..")
-              }
-          }
-
-          Column {
-              spacing: units.gu(1)
-              anchors {
-                  margins: units.gu(2)
-                  fill: parent
-              }
-
-              Label {
-                  id: label
-                  objectName: "label"
-
-                  text: myType.helloWorld
-              }
-
-              Button {
-                  objectName: "button"
-                  width: parent.width
-
-                  text: i18n.tr("Tap me! Please Yeah :::)")
-
-                  onClicked: {
-                      myType.helloWorld = i18n.tr("..from Cpp Backend")
-                  }
-              }
-          }
-      }
-      */
