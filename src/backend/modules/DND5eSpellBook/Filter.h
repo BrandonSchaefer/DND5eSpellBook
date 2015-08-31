@@ -19,7 +19,8 @@
 #ifndef FILTER_H
 #define FILTER_H
 
-#include <vector>
+#include <list>
+#include <string>
 
 namespace dnd_spell_book
 {
@@ -27,14 +28,16 @@ namespace dnd_spell_book
 class Filter
 {
 public:
-  Filter(unsigned int size);
+  Filter();
 
-  void SetFilter(unsigned int filter);
-  void RemoveFilter(unsigned int filter);
-  bool HasFilter(unsigned int filter) const;
+  void SetFilter(std::string const& string_filter);
+  void RemoveFilter(std::string const& string_filter);
+  bool HasFilter(std::string const& string_filter) const;
+
+  std::list<std::string> GetFilters() const;
 
 private:
-  std::vector<bool> filter_;
+  std::list<std::string> filter_;
 
 };
 

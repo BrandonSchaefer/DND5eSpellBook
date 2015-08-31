@@ -121,6 +121,8 @@ MainView {
 
     Rectangle {
       id: spell_card
+      border.width: units.gu(0.5)
+      border.color: "black"
 
       anchors {
         top:    spell_menu_bar.bottom
@@ -304,7 +306,7 @@ MainView {
         anchors.centerIn: parent
         font.pixelSize: units.gu(5)
         font.bold: true
-        text: "Spell Book"
+        text: "D&D 5e Spell Book"
       }
     }
 

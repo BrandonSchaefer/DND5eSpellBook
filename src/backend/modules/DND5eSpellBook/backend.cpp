@@ -38,6 +38,11 @@ void BackendPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
                                      QString::fromStdString(s.classes)));
   }
 
+  // FIXME Handle the fact that the spells might be empty
+  if (spells.empty())
+    spell_book.append(new dsb::Spell("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"));
+
+
   QQmlContext* ctxt = engine->rootContext();
   ctxt->setContextProperty("spellBookModel", QVariant::fromValue(spell_book));
 

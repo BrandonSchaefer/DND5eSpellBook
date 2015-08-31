@@ -33,8 +33,6 @@ namespace
   std::string const JSON_PATH = JSONDIR"/spells.json";
   std::string const ZERO_LEVEL = "0th-Level";
   std::string const CANTRIP    = "Cantrip";
-
-  std::vector<std::string> const CLASSES = {"Bard", "Cleric", "Druid", "Paladin", "Sorcerer", "Warlock", "Wizard"};
 }
 
 static std::string ReadInFile(std::string const& path)
@@ -66,7 +64,6 @@ static std::string ReadInFile(std::string const& path)
   return str;
 }
 
-/*
 static void print_spell_breed(SpellBreed const& b)
 {
   std::cout << std::endl;
@@ -83,23 +80,26 @@ static void print_spell_breed(SpellBreed const& b)
                "School: \t"        << b.school        << std::endl <<
                "Class: \t\t"       << b.classes       << std::endl;
 }
-*/
 
 SpellBookModel::SpellBookModel()
-  : class_filter_(CLASSES.size())
 {
   spells_ = ParseSpellBook(ReadInFile(JSON_PATH));
 
   //std::sort(spells_.begin(), spells_.end(), SpellSchoolDescending);
-  SortBySpellName(true);
-  //SortBySpellLevel(true);
+  //SortBySpellName(true);
+  SortBySpellLevel(true);
   //SortBySpellSchool(true);
 
-  class_filter_.SetFilter(PALADIN);
+  class_filter_.SetFilter("Warlock");
+  school_filter_.SetFilter("Evocation");
+  school_filter_.RemoveFilter("Evocation");
+  //level_filter_.SetFilter("1st-level");
+  //level_filter_.SetFilter("2nd-level");
+  level_filter_.SetFilter("3rd-level");
 
-  //auto t = GetSpells();
-  //for (auto const& s : t)
-    //print_spell_breed(s);
+  auto t = GetSpells();
+  for (auto const& s : t)
+    print_spell_breed(s);
   //{
     //break;
     //print_spell_breed(s);
@@ -194,46 +194,63 @@ void SpellBookModel::SortBySpellSchool(bool ascending)
     SortSpells(SpellSchoolDescending);
 }
 
-std::vector<std::string> SpellBookModel::GetSpellClassFilters() const
+// TODO Consider just lowercasing everything.... will think about that more
+// FIXME theres got to be a better way :(
+bool SpellBookModel::PassesFilters(SpellBreed const& b) const
 {
-  std::vector<std::string> class_string_filters;
+  auto list_class_filters = class_filter_.GetFilters();
+  bool class_ret = list_class_filters.empty();
 
-  for (unsigned int i = 0; i < CLASSES.size(); i++)
-    if (class_filter_.HasFilter(i))
-      class_string_filters.push_back(CLASSES[i]);
+  for (auto const& klass : list_class_filters)
+   if (b.classes.find(klass) != std::string::npos)
+     class_ret = true;
 
-  return class_string_filters;
+  auto list_school_filters = school_filter_.GetFilters();
+  bool school_ret = list_school_filters.empty();
+
+  for (auto const& school : list_school_filters)
+    if (b.school.find(school) != std::string::npos)
+      school_ret = true;
+
+  auto list_level_filters = level_filter_.GetFilters();
+  bool level_ret = list_level_filters.empty();
+
+  for (auto const& level : list_level_filters)
+    if (b.level.find(level) != std::string::npos)
+      level_ret = true;
+
+  return class_ret && school_ret && level_ret;
 }
 
 std::vector<SpellBreed> SpellBookModel::GetSpells() const
 {
   std::vector<SpellBreed> filtered_spells(spells_.size());
-  std::vector<std::string> class_string_filters = GetSpellClassFilters();
 
-  auto end_it = std::copy_if(spells_.begin(), spells_.end(),
-                             filtered_spells.begin(), [class_string_filters] (SpellBreed const& b) {
-      for (auto const& klass : class_string_filters)
-       if (b.classes.find(klass) != std::string::npos)
-         return true;
-
-      return class_string_filters.empty();
-  });
-
+  auto end_it = std::copy_if(spells_.begin(), spells_.end(), filtered_spells.begin(),
+                             std::bind(&SpellBookModel::PassesFilters, this, std::placeholders::_1));
   filtered_spells.resize(std::distance(filtered_spells.begin(), end_it));
-
-  std::cout << spells_.size() << " " << filtered_spells.size() << std::endl;
 
   return filtered_spells;
 }
 
-void SpellBookModel::AddClassFilter(ClassFilter const& class_index)
+void SpellBookModel::AddClassFilter(std::string const& string_filter)
 {
-  class_filter_.SetFilter(class_index);
+  class_filter_.SetFilter(string_filter);
 }
 
-void SpellBookModel::RemoveClassFilter(ClassFilter const& class_index)
+void SpellBookModel::RemoveClassFilter(std::string const& string_filter)
 {
-  class_filter_.RemoveFilter(class_index);
+  class_filter_.RemoveFilter(string_filter);
+}
+
+void SpellBookModel::AddSchoolFilter(std::string const& school_filter)
+{
+  school_filter_.SetFilter(school_filter);
+}
+
+void SpellBookModel::RemoveSchoolFilter(std::string const& school_filter)
+{
+  school_filter_.RemoveFilter(school_filter);
 }
 
 } // namespace dnd_spell_book

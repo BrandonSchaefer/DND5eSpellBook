@@ -18,27 +18,33 @@
 
 #include "Filter.h"
 
+#include <algorithm>
+
 namespace dnd_spell_book
 {
 
-Filter::Filter(unsigned int size)
-  : filter_(size)
+Filter::Filter()
 {
 }
 
-void Filter::SetFilter(unsigned int index)
+void Filter::SetFilter(std::string const& string_filter)
 {
-  filter_[index] = true;
+  filter_.push_front(string_filter);
 }
 
-bool Filter::HasFilter(unsigned int index) const
+bool Filter::HasFilter(std::string const& string_filter) const
 {
-  return filter_[index];
+  return std::find(filter_.begin(), filter_.end(), string_filter) != filter_.end();
 }
 
-void Filter::RemoveFilter(unsigned int index)
+void Filter::RemoveFilter(std::string const& string_filter)
 {
-  filter_[index] = false;
+  filter_.remove(string_filter);
+}
+
+std::list<std::string> Filter::GetFilters() const
+{
+  return filter_;
 }
 
 } // namespace dnd_spell_book

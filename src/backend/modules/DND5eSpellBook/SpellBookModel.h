@@ -44,17 +44,6 @@ typedef struct
   std::string classes;
 } SpellBreed;
 
-enum ClassFilter
-{
-  BARD,
-  CLERIC,
-  DRUID,
-  PALADIN,
-  SORCERER,
-  WARLOCK,
-  WIZARD
-};
-
 class SpellBookModel
 {
 public:
@@ -62,21 +51,25 @@ public:
 
   std::vector<SpellBreed> GetSpells() const;
 
-  void AddClassFilter(ClassFilter const& filter);
-  void RemoveClassFilter(ClassFilter const& filter);
+  void AddClassFilter(std::string const& class_filter);
+  void RemoveClassFilter(std::string const& class_filter);
+
+  void AddSchoolFilter(std::string const& school_filter);
+  void RemoveSchoolFilter(std::string const& school_filter);
 
   void SortBySpellLevel(bool ascending);
   void SortBySpellName(bool ascending);
   void SortBySpellSchool(bool ascending);
 
 private:
-  std::vector<std::string> GetSpellClassFilters() const;
   bool PassesFilters(SpellBreed const& b) const;
 
   void SortSpells(std::function<bool(SpellBreed const&, SpellBreed const&)> const& comp);
 
   std::vector<SpellBreed> spells_;
   Filter class_filter_;
+  Filter school_filter_;
+  Filter level_filter_;
 };
 
 } // namespace dnd_spell_book
