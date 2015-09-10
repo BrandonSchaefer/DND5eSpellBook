@@ -25,12 +25,6 @@ set_target_properties(DND5eSpellBookbackend PROPERTIES
 
 qt5_use_modules(DND5eSpellBookbackend Gui Qml Quick)
 
-# Copy qmldir file to build dir for running in QtCreator
-#add_custom_target(DND5eSpellBookbackend-qmldir ALL
-    #COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/modules/DND5eSpellBook/qmldir ${CMAKE_CURRENT_BINARY_DIR}/DND5eSpellBook
-    #DEPENDS ${QMLFILES}
-#)
-
 # Install plugin file
 install(TARGETS DND5eSpellBookbackend DESTINATION ${QT_IMPORTS_DIR}/DND5eSpellBook/)
 install(FILES   modules/DND5eSpellBook/qmldir DESTINATION ${QT_IMPORTS_DIR}/DND5eSpellBook/)

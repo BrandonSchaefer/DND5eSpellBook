@@ -1,5 +1,6 @@
 Dependices for debian/ubuntu:
 
+    qtdeclarative5-ubuntu-ui-toolkit-plugin
     libjsoncpp-dev
 
 To compile:
