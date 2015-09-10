@@ -30,9 +30,25 @@ namespace dnd_spell_book
 
 namespace
 {
-  std::string const JSON_PATH = JSONDIR"/spells.json";
+  std::string const JSON_FILE_NAME = "spells.json";
+  std::string const JSON_PATH      = std::string(JSONDIR) + "/" + JSON_FILE_NAME;
+  std::string const JSON_PATH_ENV  = "DND_SPELL_BOOK_JSON_PATH";
   std::string const ZERO_LEVEL = "0th-Level";
   std::string const CANTRIP    = "Cantrip";
+}
+
+static std::string GetJSonPath()
+{
+  char* const json_env = std::getenv(JSON_PATH_ENV.c_str());
+  if (json_env)
+  {
+    std::string str_json_env(json_env);
+
+    if (str_json_env.find(JSON_FILE_NAME) != std::string::npos)
+      return str_json_env;
+  }
+
+  return JSON_PATH;
 }
 
 static std::string ReadInFile(std::string const& path)
@@ -64,6 +80,7 @@ static std::string ReadInFile(std::string const& path)
   return str;
 }
 
+/*
 static void print_spell_breed(SpellBreed const& b)
 {
   std::cout << std::endl;
@@ -80,26 +97,27 @@ static void print_spell_breed(SpellBreed const& b)
                "School: \t"        << b.school        << std::endl <<
                "Class: \t\t"       << b.classes       << std::endl;
 }
+*/
 
 SpellBookModel::SpellBookModel()
 {
-  spells_ = ParseSpellBook(ReadInFile(JSON_PATH));
+  spells_ = ParseSpellBook(ReadInFile(GetJSonPath()));
 
   //std::sort(spells_.begin(), spells_.end(), SpellSchoolDescending);
   //SortBySpellName(true);
-  SortBySpellLevel(true);
+  //SortBySpellLevel(true);
   //SortBySpellSchool(true);
 
-  class_filter_.SetFilter("Warlock");
-  school_filter_.SetFilter("Evocation");
-  school_filter_.RemoveFilter("Evocation");
+  //class_filter_.SetFilter("Warlock");
+  //school_filter_.SetFilter("Evocation");
+  //school_filter_.RemoveFilter("Evocation");
   //level_filter_.SetFilter("1st-level");
   //level_filter_.SetFilter("2nd-level");
-  level_filter_.SetFilter("3rd-level");
+  //level_filter_.SetFilter("3rd-level");
 
-  auto t = GetSpells();
-  for (auto const& s : t)
-    print_spell_breed(s);
+  //auto t = GetSpells();
+  //for (auto const& s : t)
+    //print_spell_breed(s);
   //{
     //break;
     //print_spell_breed(s);
@@ -251,6 +269,16 @@ void SpellBookModel::AddSchoolFilter(std::string const& school_filter)
 void SpellBookModel::RemoveSchoolFilter(std::string const& school_filter)
 {
   school_filter_.RemoveFilter(school_filter);
+}
+
+void SpellBookModel::AddLevelFilter(std::string const& level_filter)
+{
+  level_filter_.SetFilter(level_filter);
+}
+
+void SpellBookModel::RemoveLevelFilter(std::string const& level_filter)
+{
+  level_filter_.RemoveFilter(level_filter);
 }
 
 } // namespace dnd_spell_book

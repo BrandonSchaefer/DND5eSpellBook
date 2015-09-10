@@ -57,8 +57,11 @@ public:
   void AddSchoolFilter(std::string const& school_filter);
   void RemoveSchoolFilter(std::string const& school_filter);
 
-  void SortBySpellLevel(bool ascending);
-  void SortBySpellName(bool ascending);
+  void AddLevelFilter(std::string const& level_filter);
+  void RemoveLevelFilter(std::string const& level_filter);
+
+  void SortBySpellLevel (bool ascending);
+  void SortBySpellName  (bool ascending);
   void SortBySpellSchool(bool ascending);
 
 private:

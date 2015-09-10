@@ -4,11 +4,12 @@ include_directories(
 
 set(
     DND5eSpellBookbackend_SRCS
-    modules/DND5eSpellBook/backend.cpp
+    modules/DND5eSpellBook/BackendPlugin.cpp
+    modules/DND5eSpellBook/Filter.cpp
+    modules/DND5eSpellBook/JSonSpellParser.cpp
     modules/DND5eSpellBook/Spell.cpp
     modules/DND5eSpellBook/SpellBookModel.cpp
-    modules/DND5eSpellBook/JSonSpellParser.cpp
-    modules/DND5eSpellBook/Filter.cpp
+    #modules/DND5eSpellBook/SpellBookSearchEngine.cpp
 )
 
 include_directories (${JSON_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})

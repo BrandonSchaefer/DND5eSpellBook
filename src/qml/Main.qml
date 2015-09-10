@@ -2,6 +2,8 @@ import QtQuick 2.0
 import Ubuntu.Components 1.1
 import DND5eSpellBook 1.0
 import QtQuick.Layouts 1.1
+import QtQuick.Controls 1.3
+import QtQuick.Controls.Styles 1.3
 
 /*!
     \brief MainView with Tabs element.
@@ -15,13 +17,7 @@ MainView {
   // Note! applicationName needs to match the "name" field of the click manifest
   applicationName: "dnd5espellbook.brandontschaefer"
 
-  /*
-   This property enables the application to change orientation
-   when the device is rotated. The default is false.
-  */
-  //automaticOrientation: true
-
-  // Removes the old toolbar and enables new features of the new header.
+  automaticOrientation: true
   useDeprecatedToolbar: false
 
   width:  units.gu(100)
@@ -30,17 +26,7 @@ MainView {
   property bool menu_shown: false
   property bool card_shown: false
 
-  Rectangle {
-    id: menu_view
-    anchors.fill: parent
-    color: "#303030"
-
-    MouseArea {
-      id: menu_mouse
-      anchors.fill: parent
-      onClicked: Qt.quit()
-    }
-  }
+  FilterMenu {}
 
   Rectangle {
     id: spell_view
@@ -99,7 +85,7 @@ MainView {
         anchors.centerIn: parent
         font.pixelSize: units.gu(5)
         font.bold: true
-        text: spellBookModel[spell_content.currentIndex].name
+        text: spell_content.currentIndex >= 0 ? spellBookModel[spell_content.currentIndex].name : ""
       }
 
       BorderImage {
@@ -152,8 +138,8 @@ MainView {
           rowSpacing: units.gu(2)
           columnSpacing: units.gu(2)
           Text {
-            text: "<i>" + spellBookModel[spell_content.currentIndex].level + " " +
-                          spellBookModel[spell_content.currentIndex].school + "</i>"
+            text: spell_content.currentIndex >= 0 ? "<i>" + spellBookModel[spell_content.currentIndex].level + " " +
+                                                    spellBookModel[spell_content.currentIndex].school + "</i>" : ""
             Layout.fillWidth: true
             Layout.columnSpan: 2
           }
@@ -166,38 +152,38 @@ MainView {
           }
 
           Text {
-            text: "<b>Casting Time:</b> " + spellBookModel[spell_content.currentIndex].casting_time
+            text: spell_content.currentIndex >= 0 ? "<b>Casting Time:</b> " + spellBookModel[spell_content.currentIndex].casting_time : ""
             Layout.fillWidth: true
           }
           Text {
-            text: "<b>Range:</b> " + spellBookModel[spell_content.currentIndex].range
-            Layout.fillWidth: true
-          }
-
-          Text {
-            text: "<b>Duration:</b> " + spellBookModel[spell_content.currentIndex].duration
-            Layout.fillWidth: true
-          }
-          Text {
-            text: "<b>Components:</b> " + spellBookModel[spell_content.currentIndex].components
+            text: spell_content.currentIndex >= 0 ? "<b>Range:</b> " + spellBookModel[spell_content.currentIndex].range : ""
             Layout.fillWidth: true
           }
 
           Text {
-            text: "<b>Concentration:</b> " + spellBookModel[spell_content.currentIndex].concentration
+            text: spell_content.currentIndex >= 0 ? "<b>Duration:</b> " + spellBookModel[spell_content.currentIndex].duration : ""
             Layout.fillWidth: true
           }
           Text {
-            text: "<b>Ritual:</b> " + spellBookModel[spell_content.currentIndex].ritual
+            text: spell_content.currentIndex >= 0 ? "<b>Components:</b> " + spellBookModel[spell_content.currentIndex].components : ""
             Layout.fillWidth: true
           }
 
           Text {
-            text: "<b>Page:</b> " + spellBookModel[spell_content.currentIndex].page
+            text: spell_content.currentIndex >= 0 ? "<b>Concentration:</b> " + spellBookModel[spell_content.currentIndex].concentration : ""
             Layout.fillWidth: true
           }
           Text {
-            text: "<b>Classes:</b> " + spellBookModel[spell_content.currentIndex].classes
+            text: spell_content.currentIndex >= 0 ? "<b>Ritual:</b> " + spellBookModel[spell_content.currentIndex].ritual : ""
+            Layout.fillWidth: true
+          }
+
+          Text {
+            text: spell_content.currentIndex >= 0 ? "<b>Page:</b> " + spellBookModel[spell_content.currentIndex].page : ""
+            Layout.fillWidth: true
+          }
+          Text {
+            text: spell_content.currentIndex >= 0 ? "<b>Classes:</b> " + spellBookModel[spell_content.currentIndex].classes : ""
             Layout.fillWidth: true
           }
           Rectangle {
@@ -215,7 +201,7 @@ MainView {
           anchors.margins: units.gu(2)
           font.pixelSize:  units.gu(2)
           wrapMode: Text.WordWrap
-          text: spellBookModel[spell_content.currentIndex].desc
+          text: spell_content.currentIndex >= 0 ? spellBookModel[spell_content.currentIndex].desc : ""
         }
       }
     }
@@ -225,6 +211,18 @@ MainView {
     id: main_view
     anchors.fill: parent
     color: "#CCCCCC"
+
+    Rectangle {
+      anchors.fill: parent
+      visible: spell_content.count > 0 ? false : true
+      Text {
+        anchors.centerIn: parent
+        font.pixelSize: units.gu(2.5)
+        font.bold: true
+        text: "Sorry, there is nothing that matches your search"
+      }
+      color: "transparent"
+    }
 
     transform: Translate {
       id: main_view_move
@@ -237,8 +235,8 @@ MainView {
       anchors.top: parent.top
       anchors.bottom: parent.bottom
       anchors.left: parent.left
-      anchors.margins: -units.gu(1.5)
-      visible: main.menu_shown
+      anchors.margins: -units.gu(0.5)
+      visible: main_view_move.x != 0
       z: -1
       source: "graphics/shadow.png"
       border {
@@ -314,7 +312,7 @@ MainView {
       id: spell_content
       anchors {
         top:    menu_bar.bottom
-        bottom: parent.bottom
+        bottom: main_footer.top
         left:   parent.left
         right:  parent.right
         leftMargin:   units.gu(2)
@@ -382,7 +380,6 @@ MainView {
           }
         }
 
-        // TODO Show a card with info on it
         MouseArea {
           anchors.fill: parent
           onClicked: {
@@ -392,12 +389,69 @@ MainView {
         }
       }
     }
+
+    Rectangle {
+      id: main_footer
+      anchors.bottom: parent.bottom
+      width: parent.width
+      height: units.gu(5)
+      color: "grey"
+
+      TextField {
+        id: search_bar
+        anchors.centerIn: parent
+        anchors.margins: units.gu(1)
+        width: parent.width / 4
+        height: parent.height / 1.5
+        placeholderText: "search"
+        onTextChanged: backend.EditingFinished(search)
+        style: TextFieldStyle {
+          placeholderTextColor: "#888888"
+        }
+      }
+
+      Rectangle {
+        id: clear_search_bar_button
+        anchors.right: search_bar.left
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.margins: units.gu(1)
+        width: units.gu(2)
+        height: units.gu(2)
+        color: "#CCCCCC"
+
+        Text {
+          anchors.centerIn: parent
+          text: "x"
+        }
+
+        MouseArea {
+          anchors.fill: parent
+          onClicked: search_bar.text = ""
+        }
+      }
+
+      BorderImage {
+        id: main_footer_shadow
+        anchors.right: parent.right
+        anchors.left:  parent.left
+        anchors.top:   parent.top
+        anchors.topMargin: -units.gu(0.5)
+        z: -1
+        source: "graphics/shadow.png"
+        border {
+          left:   units.gu(1)
+          right:  units.gu(1)
+          top:    units.gu(1)
+          bottom: units.gu(1)
+        }
+      }
+    }
   }
 
   function moveMainView()
   {
-    main_view_move.x  = main.menu_shown ? 0 : main.width * 0.25
-    spell_view_move.x = main.menu_shown ? main.width : main.width + main.width * 0.25
+    main_view_move.x  = main.menu_shown ? 0 : main.width * 0.15
+    spell_view_move.x = main.menu_shown ? main.width : main.width + main.width * 0.15
     main.menu_shown = !main.menu_shown
   }
 
