@@ -17,3 +17,5 @@ CMake options:
 Environment Variables:
 
     DND_SPELL_BOOK_JSON_PATH=/path/to/json/file/spells.json
+
+![Main View](http://i.imgur.com/8MDDVPp.png)
