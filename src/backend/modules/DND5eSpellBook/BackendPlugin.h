@@ -21,16 +21,19 @@ public:
   void initializeEngine(QQmlEngine *engine, const char *uri);
 
 public slots:
-  void ClassFilter(QString const& klass, bool checked);
-  void LevelFilter(QString const& level, bool checked);
+  void ClassFilter (QString const& klass, bool checked);
+  void LevelFilter (QString const& level, bool checked);
+  void SchoolFilter(QString const& school, bool checked);
 
   void SortBy(QString const& sort);
+  void Ascending(QString const& sort, QString const& ascending);
 
-  void EditingFinished(QString const& level);
+  void EditingFinished(QString const& search);
 
   void FilterByLevel();
 
 private:
+  void SortSpellBookModel(QString const& sort);
   void UpdateSpellBookModel();
   auto MatchSpellsOnSearchString(std::vector<dsb::SpellBreed> const& spells);
 

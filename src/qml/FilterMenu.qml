@@ -2,15 +2,16 @@ import QtQuick 2.0
 import QtQuick.Controls 1.3
 
 Rectangle {
-  width:  parent.width * 0.15
+  width:  parent.width * 0.2
   height: parent.height
   color: "#777777"
   clip: true
 
   Flickable {
     anchors.fill:  parent
+    anchors.margins: units.gu(1)
     contentWidth:  parent.width
-    contentHeight: parent.height
+    contentHeight: sort.height + sort_by.height + level.height + classes.height + school.height
     flickableDirection: Flickable.VerticalFlick
     clip: true
 
@@ -19,6 +20,40 @@ Rectangle {
       anchors.margins: units.gu(0.5)
 
       Rectangle {
+        id: sort
+        width: parent.width
+        height: direction_view.contentHeight + sort_text.height
+        color: "transparent"
+
+        Text {
+          id: sort_text
+          font.bold: true
+          text: "Sort"
+        }
+
+        ExclusiveGroup { id: directionPosition }
+        ListView {
+          id: direction_view
+          anchors {
+            top: sort_text.bottom
+            left: parent.left
+            right:  parent.right
+            bottom: parent.bottom
+          }
+          interactive: false
+          model: AscendingFilter {}
+          delegate: RadioButton {
+            text: name
+            exclusiveGroup: directionPosition
+            checked: start
+            onClicked: backend.Ascending(sortByPosition.current.text, text)
+            Component.onCompleted: if (start) backend.Ascending(sortByPosition.current.text, text);
+          }
+        }
+      }
+
+      Rectangle {
+        id: sort_by
         width: parent.width
         height: sort_by_view.contentHeight + sort_by_text.height
         color: "transparent"
@@ -51,6 +86,7 @@ Rectangle {
       }
 
       Rectangle {
+        id: level
         width: parent.width
         height: level_list_view.contentHeight + level_text.height
         color: "transparent"
@@ -79,6 +115,7 @@ Rectangle {
       }
 
       Rectangle {
+        id: classes
         width: parent.width
         height: class_list_view.contentHeight + class_text.height
         color: "transparent"
@@ -102,6 +139,35 @@ Rectangle {
           delegate: CheckBox {
             text: name
             onClicked: backend.ClassFilter(text, checked)
+          }
+        }
+      }
+
+      Rectangle {
+        id: school
+        width: parent.width
+        height: school_list_view.contentHeight + school_text.height
+        color: "transparent"
+
+        Text {
+          id: school_text
+          font.bold: true
+          text: "Schools"
+        }
+
+        ListView {
+          id: school_list_view
+          anchors {
+            top:    school_text.bottom
+            left:   parent.left
+            right:  parent.right
+            bottom: parent.bottom
+          }
+          interactive: false
+          model: SchoolFilter {}
+          delegate: CheckBox {
+            text: name
+            onClicked: backend.SchoolFilter(text, checked)
           }
         }
       }

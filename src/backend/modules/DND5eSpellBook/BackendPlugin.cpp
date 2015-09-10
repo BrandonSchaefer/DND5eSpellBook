@@ -42,6 +42,16 @@ void BackendPlugin::LevelFilter(QString const& level, bool checked)
   UpdateSpellBookModel();
 }
 
+void BackendPlugin::SchoolFilter(QString const& school, bool checked)
+{
+  if (checked)
+    spell_book_model_.AddSchoolFilter(school.toStdString());
+  else
+    spell_book_model_.RemoveSchoolFilter(school.toStdString());
+
+  UpdateSpellBookModel();
+}
+
 void BackendPlugin::EditingFinished(QString const& search)
 {
   search_string_ = search.toStdString();
@@ -49,6 +59,21 @@ void BackendPlugin::EditingFinished(QString const& search)
 }
 
 void BackendPlugin::SortBy(QString const& sort)
+{
+  SortSpellBookModel(sort);
+}
+
+void BackendPlugin::Ascending(QString const& sort, QString const& ascending)
+{
+  if (ascending == "Ascending")
+    ascending_ = true;
+  else
+    ascending_ = false;
+
+  SortSpellBookModel(sort);
+}
+
+void BackendPlugin::SortSpellBookModel(QString const& sort)
 {
   // TODO Figure out a better way
   if (sort == "Alphabet")
@@ -105,11 +130,6 @@ void BackendPlugin::UpdateSpellBookModel()
                                      QString::fromStdString(s.school),
                                      QString::fromStdString(s.classes)));
   }
-
-  // FIXME Handle the fact that the spells might be empty
-  //if (spells.empty())
-    //spell_book.append(new dsb::Spell("", "", "", "", "", "", "", "", "", "", "", ""));
-    //spell_book.append(new dsb::Spell("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"));
 
   QQmlContext* ctxt = engine_->rootContext();
   ctxt->setContextProperty("spellBookModel", QVariant::fromValue(spell_book));

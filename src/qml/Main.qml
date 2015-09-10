@@ -404,7 +404,7 @@ MainView {
         width: parent.width / 4
         height: parent.height / 1.5
         placeholderText: "search"
-        onTextChanged: backend.EditingFinished(search)
+        onTextChanged: backend.EditingFinished(text)
         style: TextFieldStyle {
           placeholderTextColor: "#888888"
         }
@@ -450,8 +450,8 @@ MainView {
 
   function moveMainView()
   {
-    main_view_move.x  = main.menu_shown ? 0 : main.width * 0.15
-    spell_view_move.x = main.menu_shown ? main.width : main.width + main.width * 0.15
+    main_view_move.x  = main.menu_shown ? 0 : main.width * 0.2
+    spell_view_move.x = main.menu_shown ? main.width : main.width + main.width * 0.2
     main.menu_shown = !main.menu_shown
   }
 
