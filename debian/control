@@ -1,0 +1,20 @@
+Source: dnd-5e-spell-book
+Section: libs
+Priority: optional
+Maintainer: Brandon Schaefer <brandon.schaefer@canonical.com>
+Build-Depends: cmake,
+               debhelper (>= 8.0.0),
+               google-mock,
+               qml-module-qtquick-controls,
+               qtdeclarative5-dev,
+               qtbase5-dev,
+               qtdeclarative5-ubuntu-ui-toolkit-plugin,
+               libjsoncpp-dev,
+Standards-Version: 3.9.4
+Homepage: https://github.com/BrandonSchaefer/DND5eSpellBook
+
+Package: dnd-5e-spell-book
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Description: QML C++ GUI for DnD 5e Spell Book
